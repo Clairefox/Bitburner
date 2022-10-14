@@ -1,0 +1,5 @@
+servers = getPurchasedServers();
+servers.forEach(function (target) {
+	killall(target);
+	deleteServer(target);
+});

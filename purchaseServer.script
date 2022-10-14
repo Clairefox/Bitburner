@@ -1,0 +1,66 @@
+var ram = 8;
+var script = "/scripts/passiveHack.script"
+var scriptHostnameArg = "joesguns";
+var serverName ="fox" // Have fun with this!
+
+// Which server # to start next purchase with:
+servers = getPurchasedServers();
+serverCount = servers.length;
+
+var i = 0;
+if ((serverCount > 0) && (serverCount < getPurchasedServerLimit())) {
+    var i = serverCount; // Because we started at 0, don't need to +1..
+}
+
+// Continuously try to purchase servers until we've reached the maximum amount of servers
+if (serverCount < getPurchasedServerLimit()) {
+    while (i < getPurchasedServerLimit()) {
+        // Check if we have enough money to purchase a server
+        if (getServerMoneyAvailable("home") > getPurchasedServerCost(ram)) {
+            // If we have enough money, then:
+            //   1. Purchase the server
+            //   2. Copy our hacking script onto the newly-purchased server
+            //   3. Run our hacking script on the newly-purchased server with 3 threads
+            //   4. Increment our iterator to indicate that we've bought a new server
+            var hostname = purchaseServer(serverName + "-" + i, ram);
+            tprint("INFO: Purchased server: " + hostname + " - " + ram + "GB");
+            scp(script, hostname);
+            threadCount = Math.floor((getServerMaxRam(hostname) / getScriptRam(script, hostname)));
+            exec(script, hostname, threadCount, scriptHostnameArg);
+            ++i;
+        }
+    }
+}
+
+
+// Continuously upgrade each server until we have 64GB RAM on each
+i = 0; //reset so we start back with the first server
+testHost = serverName + "-" + i;
+var currentRam = getServerRam(testHost)[0];
+var newRam;
+if (currentRam == 8) { newRam = 16; }
+else if (currentRam == 16) { newRam = 32; }
+else if (currentRam == 32) { newRam = 64; }
+else { newRam = 64; }
+
+while (currentRam < 64) {
+    while (i < getPurchasedServerLimit()) {
+        if (getServerMoneyAvailable("home") > getPurchasedServerCost(newRam)) {
+            hostname = serverName + "-" + i;
+            killall(hostname);
+            deleteServer(hostname);
+            purchaseServer(hostname, newRam);
+            tprint("INFO: Upgraded server: " + hostname + " - " + newRam + "GB");
+            scp(script, hostname);
+            threadCount = Math.floor((getServerMaxRam(hostname) / getScriptRam(script, hostname)));
+            exec(script, hostname, threadCount, scriptHostnameArg);
+            ++i;
+        }
+    }
+    i = 0;
+    currentRam = newRam;
+    if (newRam == 16) { newRam = 32; }
+    else if (newRam == 32) { newRam = 64; }
+}
+
+tprint("SUCCESS: Server Purchasing Complete.")

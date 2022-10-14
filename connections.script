@@ -1,0 +1,13 @@
+// TODO: get list of currently connectable servers and pull their info. Write to terminal a nicer table view...
+// Connection Name, Root [y/n], skill needed, min ports open, available RAM, hack success rate
+// Write to .csv
+
+function GetAllServers(ns) {
+	let servers = ['home'];
+	for (const server of servers) {
+		const found = ns.scan(server);
+		if (server != 'home') found.splice(0, 1);
+		servers.push(...found);
+	}
+	return servers;
+}

@@ -1,0 +1,203 @@
+var script = "/scripts/passiveHack.script";
+var scriptRam = getScriptRam(script, "home");
+var scriptHostnameArg = "joesguns";
+
+/* Future TODO: Make it so we can buy these in any order and it'll run what we have based on # ports needed
+var portHackLevel = 0;
+var portBruteSSH = (fileExists("BruteSSH.exe", "home"));
+	if (portBruteSSH) { portHackLevel++ };
+var portFTPCrack = (fileExists("FTPCrack.exe", "home"));
+	if (portFTPCrack) { portHackLevel++ };
+var portRelaySMTP = (fileExists("relaySMTP.exe", "home"));
+	if (portRelaySMTP) { portHackLevel++ };
+var portHTTPWorm = (fileExists("HTTPWorm.exe", "home"));
+	if (portHTTPWorm) { portHackLevel++ };
+var portSQLInject = (fileExists("SQLInject.exe", "home"));
+	if (portSQLInject) { portHackLevel++ };
+*/
+
+/* Future TODO: Make it so it checks if a server already has the script running and at what target.
+	If it's already running, skip resetting this server.
+
+*/
+
+
+// "Borrowed" Servers
+var servers0Port = [
+	"joesguns",
+	"harakiri-sushi",
+	"hong-fang-tea",
+	"nectar-net",
+	"n00dles",
+	"sigma-cosmetics"
+];
+
+var servers1Port = [
+	"CSEC",
+	"foodnstuff",
+	"iron-gym",
+	"max-hardware",
+	"neo-net",
+	//"silver-helix",
+	"zer0"
+];
+
+var servers2Port = [
+	"avmnite-02h",
+	//"crush-fitness", // 0GB RAM
+	"johnson-ortho",
+	"omega-net",
+	"phantasy",
+	"the-hub"
+];
+
+var servers3Port = [
+	"catalyst",
+	"computek",
+	"I.I.I.I",
+	"netlink",
+	"rothman-uni",
+	"summit-uni"
+];
+
+var servers4Port = [
+	//"syscore", // 0GB RAM
+];
+
+var servers5Port = [
+	"zb-institute"
+];
+
+function checkSkill(hostname) {
+	var serverHackLevel = getServerRequiredHackingLevel(hostname);
+	var myHackLevel = getHackingLevel();
+	if (myHackLevel >= serverHackLevel) {
+		return true;
+	} else {
+		tprint("WARN: Hacking skill not high enough for server: " + hostname);
+		return false;
+	}
+};
+
+function crackHost(hostname) {
+	
+
+}
+
+function startPassiveHack(hostname, threadCount) {
+	killall(hostname);
+	scp(script, hostname);
+	exec(script, hostname, threadCount, scriptHostnameArg);
+	tprint("INFO: passiveHack successfully executed on: " + hostname);
+};
+
+servers = getPurchasedServers();
+tprint("INFO: Updating passiveHack on Purchased Servers.")
+servers.forEach(function (hostname) {
+	var threadCount = Math.floor((getServerMaxRam(hostname) / scriptRam));
+	startPassiveHack(hostname, threadCount);
+});
+
+/*
+For each server
+	check running scripts with args
+	check skill level
+	check RAM
+	check ports
+		hack ports as needed
+	startPassiveHack if all good
+*/
+
+
+tprint("INFO: Updating passiveHack on Servers requiring 0 ports open.")
+servers0Port.forEach(function (hostname) {
+	if (checkSkill(hostname)) {
+		var threadCount = Math.floor((getServerMaxRam(hostname) / scriptRam));
+		if (!hasRootAccess(hostname)) {
+			nuke(hostname);
+		}
+		startPassiveHack(hostname, threadCount);
+	};
+});
+
+if (fileExists("BruteSSH.exe", "home")) {
+	tprint("INFO: Updating passiveHack on Servers requiring 1 ports open.")
+	servers1Port.forEach(function (hostname) {
+		if (checkSkill(hostname)) {
+			var threadCount = Math.floor((getServerMaxRam(hostname) / scriptRam));
+			if (!hasRootAccess(hostname)) {
+				brutessh(hostname);
+				nuke(hostname);
+			}
+			startPassiveHack(hostname, threadCount);
+		};
+	});
+};
+
+if (fileExists("FTPCrack.exe", "home")) {
+	tprint("INFO: Updating passiveHack on Servers requiring 2 ports open.")
+	servers2Port.forEach(function (hostname) {
+		if (checkSkill(hostname)) {
+			var threadCount = Math.floor((getServerMaxRam(hostname) / scriptRam));
+			if (!hasRootAccess(hostname)) {
+				brutessh(hostname);
+				ftpcrack(hostname);
+				nuke(hostname);
+			}
+			startPassiveHack(hostname, threadCount);
+		};
+	});
+};
+
+if (fileExists("relaySMTP.exe", "home")) {
+	tprint("INFO: Updating passiveHack on Servers requiring 3 ports open.")
+	servers3Port.forEach(function (hostname) {
+		if (checkSkill(hostname)) {
+			var threadCount = Math.floor((getServerMaxRam(hostname) / scriptRam));
+			if (!hasRootAccess(hostname)) {
+				brutessh(hostname);
+				ftpcrack(hostname);
+				relaysmtp(hostname);
+				nuke(hostname);
+			}
+			startPassiveHack(hostname, threadCount);
+		};
+	});
+}
+
+if (fileExists("HTTPWorm.exe", "home")) {
+	tprint("INFO: Updating passiveHack on Servers requiring 4 ports open.")
+	servers4Port.forEach(function (hostname) {
+		if (checkSkill(hostname)) {
+			var threadCount = Math.floor((getServerMaxRam(hostname) / scriptRam));
+			if (!hasRootAccess(hostname)) {
+				brutessh(hostname);
+				ftpcrack(hostname);
+				relaysmtp(hostname);
+				httpworm(hostname);
+				nuke(hostname);
+			}
+			startPassiveHack(hostname, threadCount);
+		};
+	});
+}
+
+if (fileExists("SQLInject.exe", "home")) {
+	tprint("INFO: Updating passiveHack on Servers requiring 5 ports open.")
+	servers5Port.forEach(function (hostname) {
+		if (checkSkill(hostname)) {
+			var threadCount = Math.floor((getServerMaxRam(hostname) / scriptRam));
+			if (!hasRootAccess(hostname)) {
+				brutessh(hostname);
+				ftpcrack(hostname);
+				relaysmtp(hostname);
+				httpworm(hostname);
+				sqlinject(hostname);
+				nuke(hostname);
+			}
+			startPassiveHack(hostname, threadCount);
+		};
+	});
+}
+
+tprint("INFO: Update of passiveHack executions complete.");

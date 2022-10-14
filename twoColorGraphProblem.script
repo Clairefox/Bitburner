@@ -1,0 +1,86 @@
+var assert = require('assert');
+
+var twoColorGraph = function (N, dislikes) {
+  if (!dislikes.length) return true;
+  const graph = new Map();
+  const marked = Array(N + 1).fill(0);
+  const stack = [];
+
+  // create adjacency list
+  for (let [a, b] of dislikes) {
+    graph.set(a, (graph.get(a) || new Set()).add(b));
+    graph.set(b, (graph.get(b) || new Set()).add(a));
+  }
+
+  marked[0] = 1;
+  stack.push([dislikes[0][0], 1]);
+
+  while (stack.length) {
+    const [node, mark] = stack.pop();
+    marked[node] = mark;
+
+    if (graph.has(node)) {
+      const neighbors = graph.get(node);
+
+      for (let vertex of neighbors) {
+        if (marked[vertex] === mark) return false;
+        if (marked[vertex] === 0) stack.push([vertex, ~mark]);
+      }
+    }
+
+    if (stack.length === 0 && marked.includes(0)) {
+      for (let i = 1; i < marked.length; i++) {
+        if (graph.has(i) && marked[i] === 0) {
+          stack.push([i, 1]);
+          break;
+        }
+      }
+    }
+  }
+  return true;
+};
+
+try {
+  N = 4;
+  dislikes = [
+    [0, 1, 0, 1],
+    [1, 0, 1, 0],
+    [0, 1, 0, 1],
+    [1, 0, 1, 0],
+  ];
+  assert.equal(twoColorGraph(N, dislikes), true);
+
+  console.log('PASSED: ' + 'First Test');
+} catch (err) {
+  console.log(err);
+}
+
+try {
+  N = 4;
+  dislikes = [
+    [0, 1, 1, 1],
+    [1, 0, 0, 0],
+    [0, 1, 0, 1],
+    [1, 0, 1, 0],
+  ];
+  assert.equal(twoColorGraph(N, dislikes), true);
+
+  console.log('PASSED: ' + 'Second Test');
+} catch (err) {
+  console.log(err);
+}
+
+try {
+  N = 4;
+  dislikes = [
+    [1, 1, 0, 1],
+    [1, 0, 1, 0],
+    [0, 1, 0, 1],
+    [1, 0, 1, 0],
+  ];
+  assert.equal(twoColorGraph(N, dislikes), false);
+
+  console.log('PASSED: ' + 'Third Test');
+} catch (err) {
+  console.log(err);
+}

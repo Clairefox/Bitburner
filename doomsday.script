@@ -1,0 +1,19 @@
+// Terminate scripts on "borrowed" servers
+targets = ["n00dles", "foodnstuff", "sigma-cosmetics", "joesguns", "hong-fang-tea", "harakiri-sushi"];
+targets.forEach(function (target) {
+	killall(target);
+});
+
+
+// Terminate scripts on owned servers
+servers = getPurchasedServers();
+servers.forEach(function (target) {
+	killall(target);
+});
+
+//var i = 0;
+//while (i < getPurchasedServerLimit()) {
+//	var target = "pserv-" + i;
+//	killall(target);
+//	++i;
+//}
